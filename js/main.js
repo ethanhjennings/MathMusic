@@ -86,7 +86,7 @@ $( document ).ready(function() {
   window.perlin_noise.seed(Math.random());
   window.soundData = undefined;
   window.audioContext = new AudioContext();
-  window.w = new WaveGenerator(new AudioContext(),function(d) {
+  window.w = new WaveGenerator(window.audioContext,function(d) {
     window.soundData = d;
   });
   window.w.play();
