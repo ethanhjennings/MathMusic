@@ -54,7 +54,40 @@ $( document ).ready(function() {
       ],
     },
   ];
-  window.keyboard = new Keyboard(document.getElementById("main-keyboard"), 'C2', 'C6');
+  let keyboardMapping = {
+    'Q': Note.parse('D#3'),
+    'A': Note.parse('E3'),
+    'S': Note.parse('F3'),
+    'E': Note.parse('F#3'),
+    'D': Note.parse('G3'),
+    'R': Note.parse('G#3'),
+    'F': Note.parse('A3'),
+    'T': Note.parse('A#3'),
+    'G': Note.parse('B3'),
+    'H': Note.parse('C4'),
+    'U': Note.parse('C#4'),
+    'J': Note.parse('D4'),
+    'I': Note.parse('D#4'),
+    'K': Note.parse('E4'),
+    'L': Note.parse('F4'),
+    'P': Note.parse('F#4'),
+    ';': Note.parse('G4'),
+    '[': Note.parse('G#4'),
+    '\'': Note.parse('A4'),
+    ']': Note.parse('A#4'),
+  };
+  window.keyboard = new Keyboard(
+      document.getElementById("main-keyboard"), 
+      'C2', 'C6', // range
+      keyboardMapping,
+      function keyboardPress(note) {
+        window.w.addFunction(sample,note.toString(),{freq:note.toFreq()});
+        window.audioContext.resume();
+      },
+      function keyboardRelease(note) {
+        window.w.removeFunc(note.toString());
+      },
+  );
   $.each(example_code, function(i, example) {
     $("#examples").append($("<option />").val(i).text(example.name));
   });
@@ -114,22 +147,5 @@ $( document ).ready(function() {
   })();
   $("#code").bind('input propertychange',function() {
     evalCode();
-  });
-  // Notes:
-  var key_map = {};
-  var notes = {65: 174.61, 83:196.00, 68: 220.00,70: 246.94, 71: 261.63, 72:293.66, 74:329.63, 75:349.23, 76:392.00, 186:440.00, 222:493.88};
-  $(document).keydown(function(e) {
-    if(e.keyCode in notes && !key_map[e.keyCode]) {
-      key_map[e.keyCode] = true;
-      window.w.removeFunc(defaultFuncId);
-      window.w.addFunction(sample,e.keyCode,{freq:notes[e.keyCode]});
-      window.audioContext.resume();
-    }
-  }).keyup(function(e) {
-    if(e.keyCode in notes) {
-      key_map[e.keyCode] = false;
-      window.w.removeFunc(defaultFuncId);
-      window.w.removeFunc(e.keyCode);
-    }
   });
 });
