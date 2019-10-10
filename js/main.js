@@ -114,10 +114,6 @@ $( document ).ready(function() {
     try {
       eval(text);
       window.sample = sample;
-      window.w.removeFunc(defaultFuncId);
-      defaultFuncId = "default_" + defaultFuncIdNum;
-      defaultFuncIdNum++;
-      //window.w.addFunction(sample,defaultFuncId,{freq:261.63});
     }
     catch(e) {
       window.sample = undefined;
@@ -127,8 +123,6 @@ $( document ).ready(function() {
   window.noise = function(t) {return window.perlin_noise.simplex2(1.0, t);}
   var canvas = $('#canvas')[0];
   var context = canvas.getContext('2d');
-  var defaultFuncIdNum = 0;
-  var defaultFuncId = "default_" + defaultFuncIdNum;
   context.translate(0.5, 0.5);
   (function animate() {
     context.fillStyle="#000000";
