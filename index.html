@@ -1,8 +1,13 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <title>MathMusic</title>
+  <link rel="stylesheet" type="text/css" href="css/keyboard.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="js/WaveGenerator.js"></script>
   <script src="js/noise.js"></script>
+  <script src="js/Note.js"></script>
+  <script src="js/Keyboard.js"></script>
   <script src="js/main.js"></script>
 </head>
 <body>
@@ -16,7 +21,9 @@ function sample(t,sample_rate,freq) {
 return 0.3*sin((2.0*PI*t*freq)/sample_rate);
 }
 </textarea>
-<br>Press the keys asdfghjkl;' on your keyboard to play notes.
+
+<br>Press keys on your keyboard to play notes.
+<ul id="main-keyboard" class="keyboard"></ul>
 
 </body>
 </html>

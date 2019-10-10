@@ -1,23 +1,3 @@
-function note_to_freq(note) {
-  let notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']                       ;
-  let note_regex = /([A-F])(#|b)?([0-9]+)/;
-  let match = note.match(note_regex);
-  let letter = match[1];
-  let sharp_flat = match[2];
-  let octave = parseInt(match[3]);
-  let note_index = notes.indexOf(letter);
-  if (sharp_flat == '#') {
-    note_index += 1;
-  } else if (sharp_flat == 'b') {
-    note_index -= 1;
-  }
-  note_index = note_index % 12; // Wrap around
-  if (note_index >= 3) {
-    octave -= 1;
-  }
-  let note_pos = (12*octave)+note_index + 1;
-  return 440 * Math.pow(2, (note_pos-49)/12);
-}
 let zelda_song = [
   {start:0.0, dur: 1.0, note: 'A4'},
   {start:1.0, dur: 1.5, note: 'E4'},
@@ -29,7 +9,7 @@ let zelda_song = [
   {start:4.0, dur: 1.75, note: 'E5'},
 ]
 for (let i = 0; i < zelda_song.length; i++) {
-  zelda_song[i].freq = note_to_freq(zelda_song[i].note);
+  zelda_song[i].freq = Note.parse(zelda_song[i].note).toFreq();
 }
 $( document ).ready(function() {
   example_code = [
@@ -74,6 +54,7 @@ $( document ).ready(function() {
       ],
     },
   ];
+  window.keyboard = new Keyboard(document.getElementById("main-keyboard"), 'C2', 'C6');
   $.each(example_code, function(i, example) {
     $("#examples").append($("<option />").val(i).text(example.name));
   });

@@ -1,0 +1,96 @@
+.keyboard {
+  font-size:0;
+  white-space: nowrap;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  user-select: none;
+  padding: 1px;
+  height: 212px;
+  --dark-color: #2c3e50;
+  --light-color: #ecf0f1;
+  --white-key-pressed-color: #7e94ab;
+  --black-key-pressed-color: #5b728b;
+  --middle-c-key-color: #b2bec3;
+  width: 1000px;
+}
+
+.key {
+  position: relative;
+  display: inline-block;
+  font-family: sans-serif;
+}
+
+.white.key {
+  width: 60px;
+  height: 190px;
+  color: var(--dark-color);
+  margin: -1.5px;
+  border: solid var(--dark-color) 3px;
+  border-radius: 0px 0px 6px 6px;
+  background-color: var(--light-color);
+  z-index: 50;
+}
+
+.white.key:active {
+  background-color: var(--white-key-pressed-color);
+  color: var(--light-color);
+}
+
+.white.key p {
+  float:none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  margin: 0px;
+}
+
+.white.key .note-label {
+  font-size: 1.2rem;
+  top: 85%;
+  left: 50%;
+}
+
+.white.key .keyboard-hint {
+  font-size: 1.0rem;
+  top: 73%;
+  left: 50%;
+}
+
+.middle-c.white.key {
+  font-weight: 700;
+}
+
+.black.key {
+  width: 40px;
+  height: 130px;
+  background: black;
+  color: white;
+  margin-left:-21px;
+  margin-right:-19px;
+  z-index: 100;
+  background-color: #2c3e50;
+  color: var(--light-color);
+  top: -66px;
+  border-radius: 0px 0px 6px 6px;
+}
+
+.black.key:active {
+  background-color: var(--black-key-pressed-color);
+}
+
+.black.key p {
+  font-size: 1.0rem;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  margin: 0px;
+}
+
+.black.key .note-label {
+  top: 80%;
+  left: 50%;
+}
+
+.black.key .keyboard-hint {
+  font-size: 0.9rem;
+  top: 62%;
+  left: 50%;
+}
