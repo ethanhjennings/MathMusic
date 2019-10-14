@@ -1,3 +1,26 @@
+class Key {
+  constructor(note, element, inputStartingStates, changedCallback) {
+    this.note = note;
+    this.element = element;
+    this.pressed = false;
+    this.inputStates = inputStartingStates;
+    this.changedCallback = changedCallback;
+  }
+  
+  setInputState(inputType, state) {
+    this.inputStates[inputType] = state;
+    let currentPressed = this.inputStates.values.some((e) => e);
+    if (currentPressed !== this.pressed) {
+      this.pressed = currentPressed;
+      this._updateCSS();
+    }
+  }
+
+  _updateCSS() {
+    if
+  }
+}
+
 class Keyboard {
   constructor(
       element,
@@ -12,6 +35,8 @@ class Keyboard {
     this.keyPressCallback = keyPressCallback;
     this.keyReleaseCallback = keyReleaseCallback;
     this.keys = [];
+    this.mouseHoveringKey = null;
+    this.mousedown = false;
     this.idToKey = {};
     this._initKeys(startNote, endNote);
     this._setupEventHandlers();
@@ -39,8 +64,6 @@ class Keyboard {
       this.keyboardElement.appendChild(keyElement);
 
       let key = {
-        note: note,
-        element: keyElement,
         keydown: false,
         mousedown: false,
       };
@@ -52,33 +75,68 @@ class Keyboard {
   _setupEventHandlers() {
     document.addEventListener('keydown', this._keydownEvent.bind(this));
     document.addEventListener('keyup', this._keyupEvent.bind(this));
-    for (let i = 0; i < this.keys.length; i++) {
+    document.addEventListener('mousedown', this._mousedownEvent.bind(this));
+    document.addEventListener('mouseup', this._mouseupEvent.bind(this));
+    document.addEventListener('mousemove', this._mousemoveEvent.bind(this));
+    /*for (let i = 0; i < this.keys.length; i++) {
       let element = this.keys[i].element;
       element.addEventListener('mousedown', this._mousedownEvent.bind(this));
       element.addEventListener('mouseup', this._mouseupEvent.bind(this));
+    }*/
+  }
+
+  _keyFromPoint(x, y) {
+    let elements = document.elementsFromPoint(x, y);
+    for (let i = 0; i < elements.length; i++) {
+      if (elements[i].classList.contains('key')) {
+        return this.idToKey[elements[i].id]; 
+      }
+    }
+    return null; // Not clicking a key
+  }
+
+  _updateKeyCss(key, pressing) {
+    if (key.mousedown || key.keydown) {
+      key.element.classList.add('active');
+    } else {
+      key.element.classList.remove('active');
     }
   }
 
-  _updateKeyCss(key) {
-    if (key.mousedown || key.keydown) {
-      key.element.classList.add('active')
-    } else {
-      key.element.classList.remove('active')
+  _processMouseEvent(e, changedState) {
+    let key = this._keyFromPoint(e.clientX, e.clientY);
+    if (key !== this.mouseHoveringKey || changedState) {
+      if (this.mouseHoveringKey !== null) {
+        this.mouseHoveringKey.mousedown = false;
+        this._updateKeyCss(this.mouseHoveringKey);
+        this.keyReleaseCallback(this.mouseHoveringKey.note);
+      }
+
+      if (key !== null) {
+        key.mousedown = this.mousedown;
+        this._updateKeyCss(key);
+        if (this.mousedown) {
+          this.keyPressCallback(key.note);
+        } else {
+          this.keyReleaseCallback(key.note);
+        }
+      }
+      this.mouseHoveringKey = key;
     }
   }
 
   _mousedownEvent(e) {
-    let key = this.idToKey[e.currentTarget.id];
-    key.mousedown = true;
-    this._updateKeyCss(key);
-    this.keyPressCallback(key.note);
+    this.mousedown = true;
+    this._processMouseEvent(e, true);
   }
 
   _mouseupEvent(e) {
-    let key = this.idToKey[e.currentTarget.id];
-    key.mousedown = false;
-    this._updateKeyCss(key);
-    this.keyReleaseCallback(key.note);
+    this.mousedown = false;
+    this._processMouseEvent(e, true);
+  }
+
+  _mousemoveEvent(e) {
+    this._processMouseEvent(e, false);
   }
 
   _keydownEvent(e) {

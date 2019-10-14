@@ -11,9 +11,13 @@ class WaveGenerator {
     this.sampleFuncs = [];
   }
 
+
+  setFunc(func) {
+    this.func = func;
+  }
+
   addFunction(func, id, params) {
     this.sampleFuncs.push({
-      func: func,
       volume: 0.0,
       state:"created",
       t:0,
@@ -35,11 +39,14 @@ class WaveGenerator {
     let max = 0.0;
     for (let i = 0; i < data.length; i++) {
       data[i] = 0;
-      for (let j = 0; j < this.sampleFuncs.length; j++) {
-        let s = this.sampleFuncs[j];
-        data[i] += s.func(s.t,this.sampleRate,s.params.freq)*s.volume;
-        s.t++;
-      }
+        for (let j = 0; j < this.sampleFuncs.length; j++) {
+          let s = this.sampleFuncs[j];
+          try {
+            data[i] += this.func(s.t,this.sampleRate,s.params.freq)*s.volume;
+          } catch (e) {
+          }
+          s.t++;
+        }
       if (Math.abs(data[i]) > max) {
         max = Math.abs(data[i]);
       }

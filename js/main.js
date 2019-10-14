@@ -78,7 +78,7 @@ $( document ).ready(function() {
   };
   window.keyboard = new Keyboard(
       document.getElementById("main-keyboard"), 
-      'C2', 'C6', // range
+      'C1', 'C7', // range
       keyboardMapping,
       function keyboardPress(note) {
         window.w.addFunction(sample,note.toString(),{freq:note.toFreq()});
@@ -114,9 +114,11 @@ $( document ).ready(function() {
     try {
       eval(text);
       window.sample = sample;
+      window.w.setFunc(sample);
     }
     catch(e) {
       window.sample = undefined;
+      window.w.setFunc(() => {return 0.0;});
     }
   }
   evalCode();
