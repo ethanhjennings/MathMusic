@@ -76,8 +76,8 @@ $( document ).ready(function() {
     '\'': Note.parse('A4'),
     ']': Note.parse('A#4'),
   };
-  window.keyboard = new Keyboard(
-      document.getElementById("main-keyboard"), 
+  window.pianoKeyboard = new PianoKeyboard(
+      document.getElementById("main-piano-keyboard"), 
       'C1', 'C7', // range
       keyboardMapping,
       function keyboardPress(note) {

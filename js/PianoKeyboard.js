@@ -1,27 +1,4 @@
-class Key {
-  constructor(note, element, inputStartingStates, changedCallback) {
-    this.note = note;
-    this.element = element;
-    this.pressed = false;
-    this.inputStates = inputStartingStates;
-    this.changedCallback = changedCallback;
-  }
-  
-  setInputState(inputType, state) {
-    this.inputStates[inputType] = state;
-    let currentPressed = this.inputStates.values.some((e) => e);
-    if (currentPressed !== this.pressed) {
-      this.pressed = currentPressed;
-      this._updateCSS();
-    }
-  }
-
-  _updateCSS() {
-    if
-  }
-}
-
-class Keyboard {
+class PianoKeyboard {
   constructor(
       element,
       startNote,
@@ -35,7 +12,7 @@ class Keyboard {
     this.keyPressCallback = keyPressCallback;
     this.keyReleaseCallback = keyReleaseCallback;
     this.keys = [];
-    this.mouseHoveringKey = null;
+    this.previousMouseKey = null;
     this.mousedown = false;
     this.idToKey = {};
     this._initKeys(startNote, endNote);
@@ -63,10 +40,13 @@ class Keyboard {
 
       this.keyboardElement.appendChild(keyElement);
 
-      let key = {
-        keydown: false,
-        mousedown: false,
-      };
+      let key = new Key(
+          note,
+          keyElement,
+          {'mouse': false, 'keyboard': false, 'external': false},
+          this.keyPressCallback,
+          this.keyReleaseCallback
+      );
       this.keys.push(key);
       this.idToKey[keyElement.id] = key;
     }
@@ -95,77 +75,90 @@ class Keyboard {
     return null; // Not clicking a key
   }
 
-  _updateKeyCss(key, pressing) {
-    if (key.mousedown || key.keydown) {
-      key.element.classList.add('active');
-    } else {
-      key.element.classList.remove('active');
-    }
-  }
-
-  _processMouseEvent(e, changedState) {
+  _processMouseEvent(e) {
     let key = this._keyFromPoint(e.clientX, e.clientY);
-    if (key !== this.mouseHoveringKey || changedState) {
-      if (this.mouseHoveringKey !== null) {
-        this.mouseHoveringKey.mousedown = false;
-        this._updateKeyCss(this.mouseHoveringKey);
-        this.keyReleaseCallback(this.mouseHoveringKey.note);
-      }
-
-      if (key !== null) {
-        key.mousedown = this.mousedown;
-        this._updateKeyCss(key);
-        if (this.mousedown) {
-          this.keyPressCallback(key.note);
-        } else {
-          this.keyReleaseCallback(key.note);
-        }
-      }
-      this.mouseHoveringKey = key;
+    if (key !== null) {
+      key.setInputState('mouse', this.mousedown);
     }
+    if (this.previousMouseKey !== key && this.previousMouseKey !== null) {
+      this.previousMouseKey.setInputState('mouse', false);
+    }
+    this.previousMouseKey = key;
   }
 
   _mousedownEvent(e) {
     this.mousedown = true;
-    this._processMouseEvent(e, true);
+    this._processMouseEvent(e);
   }
 
   _mouseupEvent(e) {
     this.mousedown = false;
-    this._processMouseEvent(e, true);
+    this._processMouseEvent(e);
   }
 
   _mousemoveEvent(e) {
-    this._processMouseEvent(e, false);
+    this._processMouseEvent(e);
+  }
+
+  _processKeyboardEvent(e, state) {
+    let note = this.pcKeyboardMapping[e.key.toUpperCase()];
+    if (note === undefined) {
+      return;
+    }
+    let key = this.idToKey[note.toString()];
+    key.setInputState('keyboard', state);
   }
 
   _keydownEvent(e) {
-    let note = this.pcKeyboardMapping[e.key.toUpperCase()];
-    if (note === undefined) {
-      return;
-    }
-    let key = this.idToKey[note.toString()];
-    if (key.keydown === false) {
-      key.keydown = true;
-      this._updateKeyCss(key);
-      this.keyPressCallback(note);
-    }
+    this._processKeyboardEvent(e, true);
   }
 
   _keyupEvent(e) {
-    let note = this.pcKeyboardMapping[e.key.toUpperCase()];
-    if (note === undefined) {
-      return;
-    }
-    let key = this.idToKey[note.toString()];
-    if (key.keydown === true) {
-      key.keydown = false;
-      this._updateKeyCss(key);
-      this.keyReleaseCallback(note);
-    }
+    this._processKeyboardEvent(e, false);
   }
   
   resetScroll() {
-    this.keyboardElement.scrollLeft = (this.keyboardElement.scrollWidth - this.keyboardElement.clientWidth)/2;
+    this.keyboardElement.scrollLeft = (
+        this.keyboardElement.scrollWidth - this.keyboardElement.clientWidth
+    )/2;
+  }
+}
+
+class Key {
+  constructor(
+      note,
+      element,
+      inputStartingStates,
+      keyPressCallback,
+      keyReleaseCallback
+  ) {
+    this.note = note;
+    this.element = element;
+    this.pressed = false;
+    this.inputStates = inputStartingStates;
+    this.keyPressCallback = keyPressCallback;
+    this.keyReleaseCallback = keyReleaseCallback;
+  }
+
+  setInputState(inputType, state) {
+    this.inputStates[inputType] = state;
+    let currentPressed = Object.values(this.inputStates).some((e) => e);
+    if (currentPressed !== this.pressed) {
+      this.pressed = currentPressed;
+      this._updateCSS();
+      if (this.pressed) {
+        this.keyPressCallback(this.note);
+      } else {
+        this.keyReleaseCallback(this.note);
+      }
+    }
+  }
+
+  _updateCSS() {
+    if (this.pressed) {
+      this.element.classList.add('active');
+    } else {
+      this.element.classList.remove('active');
+    }
   }
 }
